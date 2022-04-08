@@ -74,7 +74,7 @@
     },
     "rider": {
       "update-channel": "Rider RELEASE",
-      "url-template": "https://download.jetbrains.com/rider/JetBrains.Rider-{version}.tar.gz",
+      "url-template": "https://download.jetbrains.com/rider/JetBrains.Rider-{versionMajorMinor}-{version}.Checked.tar.gz",
       "version": "2021.3.3",
       "sha256": "1dc57d5d7932d4a8dea51fc5cbdaa52f9626490092978f02fa15bb41cb84068f",
       "url": "https://download.jetbrains.com/rider/JetBrains.Rider-2021.3.3.tar.gz",
@@ -172,7 +172,7 @@
     },
     "rider": {
       "update-channel": "Rider RELEASE",
-      "url-template": "https://download.jetbrains.com/rider/JetBrains.Rider-{version}.dmg",
+      "url-template": "https://download.jetbrains.com/rider/JetBrains.Rider-{versionMajorMinor}-{version}.Checked.dmg",
       "version": "2021.3.3",
       "sha256": "41a0939cb6258a0fb303268c5a466a663cf3588af14bcbb351be4c3a1d158094",
       "url": "https://download.jetbrains.com/rider/JetBrains.Rider-2021.3.3.dmg",
@@ -270,7 +270,7 @@
     },
     "rider": {
       "update-channel": "Rider RELEASE",
-      "url-template": "https://download.jetbrains.com/rider/JetBrains.Rider-{version}-aarch64.dmg",
+      "url-template": "https://download.jetbrains.com/rider/JetBrains.Rider-{versionMajorMinor}-{version}.Checked-aarch64.dmg",
       "version": "2021.3.3",
       "sha256": "65603860d1fd3134c5659f5a06de7cac17f3183a01056b79cfe72242b99adb37",
       "url": "https://download.jetbrains.com/rider/JetBrains.Rider-2021.3.3-aarch64.dmg",
