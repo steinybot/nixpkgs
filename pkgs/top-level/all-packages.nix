@@ -26470,12 +26470,20 @@ with pkgs;
     inherit (qt5) wrapQtAppsHook;
   };
 
-  jetbrains = (recurseIntoAttrs (callPackages ../applications/editors/jetbrains {
-    vmopts = config.jetbrains.vmopts or null;
-    jdk = jetbrains.jdk;
-  }) // {
-    jdk = callPackage ../development/compilers/jetbrains-jdk {  };
-  });
+  jetbrains = (
+    recurseIntoAttrs (callPackages ../applications/editors/jetbrains {
+      vmopts = config.jetbrains.vmopts or null;
+      jdk = jetbrains.jdk;
+    }) //
+    lib.meta.lowPrioSet (recurseIntoAttrs (callPackages ../applications/editors/jetbrains {
+      vmopts = config.jetbrains.vmopts or null;
+      jdk = jetbrains.jdk;
+      channel = "eap";
+    })) //
+    {
+      jdk = callPackage ../development/compilers/jetbrains-jdk {  };
+    }
+  );
 
   jmusicbot = callPackage ../applications/audio/jmusicbot { };
 
