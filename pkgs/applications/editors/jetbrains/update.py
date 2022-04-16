@@ -18,7 +18,7 @@ def one_or_more(x):
     return x if isinstance(x, list) else [x]
 
 
-def download_channels():
+def download_channel_updates():
     logging.info("Checking for updates from %s", updates_url)
     updates_response = requests.get(updates_url)
     updates_response.raise_for_status()
@@ -49,50 +49,46 @@ def download_sha256(url):
     return download_response.content.decode('UTF-8').split(' ')[0]
 
 
-channels = download_channels()
+channel_updates = download_channel_updates()
 
-
-def update_product(name, product):
+def update_product(description, product):
     update_channel = product["update-channel"]
-    logging.info("Updating %s", name)
-    channel = channels.get(update_channel)
+    logging.info("Updating %s", description)
+    channel = channel_updates.get(update_channel)
     if channel is None:
         logging.error("Failed to find channel %s.", update_channel)
         logging.error("Check that the update-channel in %s matches the name in %s", versions_file_path, updates_url)
     else:
         try:
             build = latest_build(channel)
-            if "EAP" not in channel["@name"]:
-                version_or_build_number = build["@version"]
+            version = build["@version"]
+            if "EAP" in channel["@name"]:
+                url_version = build["@fullNumber"]
             else:
-                version_or_build_number = build["@fullNumber"]
-            version_number = build["@version"].split(' ')[0]
-            download_url = product["url-template"].format(version=version_or_build_number, versionMajorMinor=version_number)
-            product["version-major-minor"] = version_number
+                url_version = build["@version"]
+            version_major_minor = version.split(' ')[0]
+            download_url = product["url-template"].format(version=url_version, versionMajorMinor=version_major_minor)
             product["url"] = download_url
-            if "sha256" not in product or product.get("version") != version_or_build_number:
-                logging.info("Found a newer version %s.", version_or_build_number)
-                product["version"] = version_or_build_number
+            if "sha256" not in product or product.get("version") != version:
+                logging.info("Found a newer version %s.", version)
+                product["version"] = version
                 product["sha256"] = download_sha256(download_url)
             else:
-                logging.info("Already at the latest version %s.", version_or_build_number)
+                logging.info("Already at the latest version %s.", version)
         except Exception as e:
             logging.exception("Update failed:", exc_info=e)
-            logging.warning("Skipping %s due to the above error.", name)
+            logging.warning("Skipping %s due to the above error.", description)
             logging.warning("It may be out-of-date. Fix the error and rerun.")
-
-
-def update_products(products):
-    for name, product in products.items():
-        update_product(name, product)
 
 
 with open(versions_file_path, "r") as versions_file:
     versions = json.load(versions_file)
 
-for products in versions.values():
-    update_products(products)
+for channel, platforms in versions.items():
+    for platform, products in platforms.items():
+        for name, product in products.items():
+            update_product(f'{name} ({channel} {platform})', product)
 
 with open(versions_file_path, "w") as versions_file:
-    json.dump(versions, versions_file, indent=2)
+    json.dump(versions, versions_file, indent=2, sort_keys=True)
     versions_file.write("\n")
