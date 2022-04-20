@@ -25593,6 +25593,8 @@ with pkgs;
 
   docker-credential-helpers = callPackage ../tools/admin/docker-credential-helpers { };
 
+  docker-desktop = callPackage ../applications/virtualization/docker-desktop { };
+
   doodle = callPackage ../applications/search/doodle { };
 
   dr14_tmeter = callPackage ../applications/audio/dr14_tmeter { };
