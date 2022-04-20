@@ -31959,7 +31959,7 @@ with pkgs;
     buildFHSUserEnv = buildFHSUserEnvBubblewrap;
   });
 
-  steam = steamPackages.steam-fhsenv;
+  steam = steamPackages.steam-main;
 
   steam-run = steam.run;
 
