@@ -18,18 +18,18 @@
 
 mkDerivation rec {
   pname = "polymc";
-  version = "1.1.0";
+  version = "1.2.2";
 
   src = fetchFromGitHub {
     owner = "PolyMC";
     repo = "PolyMC";
     rev = version;
-    sha256 = "sha256-p5vbpNZI/JiQJclEo/Pu/46qVul+3DAzaoow8jabHrI=";
+    sha256 = "sha256-lxiMz7vuq+BkNVjWWJbPUk68DSe8zVZPcvZ1iXDsfCY=";
     fetchSubmodules = true;
   };
 
   nativeBuildInputs = [ cmake file makeWrapper ];
-  buildInputs = [ qtbase jdk8 zlib ];
+  buildInputs = [ qtbase jdk zlib ];
 
   postPatch = ''
     # hardcode jdk paths

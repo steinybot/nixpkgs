@@ -11,14 +11,7 @@ let
   systemd = cfg.package;
 
   inherit (systemdUtils.lib)
-    makeUnit
     generateUnits
-    makeJobScript
-    unitConfig
-    serviceConfig
-    mountConfig
-    automountConfig
-    commonUnitText
     targetToUnit
     serviceToUnit
     socketToUnit
@@ -185,13 +178,7 @@ in
     systemd.units = mkOption {
       description = "Definition of systemd units.";
       default = {};
-      type = with types; attrsOf (submodule (
-        { name, config, ... }:
-        { options = concreteUnitOptions;
-          config = {
-            unit = mkDefault (makeUnit name config);
-          };
-        }));
+      type = systemdUtils.types.units;
     };
 
     systemd.packages = mkOption {
@@ -203,37 +190,37 @@ in
 
     systemd.targets = mkOption {
       default = {};
-      type = with types; attrsOf (submodule [ { options = targetOptions; } unitConfig] );
+      type = systemdUtils.types.targets;
       description = "Definition of systemd target units.";
     };
 
     systemd.services = mkOption {
       default = {};
-      type = with types; attrsOf (submodule [ { options = serviceOptions; } unitConfig serviceConfig ]);
+      type = systemdUtils.types.services;
       description = "Definition of systemd service units.";
     };
 
     systemd.sockets = mkOption {
       default = {};
-      type = with types; attrsOf (submodule [ { options = socketOptions; } unitConfig ]);
+      type = systemdUtils.types.sockets;
       description = "Definition of systemd socket units.";
     };
 
     systemd.timers = mkOption {
       default = {};
-      type = with types; attrsOf (submodule [ { options = timerOptions; } unitConfig ]);
+      type = systemdUtils.types.timers;
       description = "Definition of systemd timer units.";
     };
 
     systemd.paths = mkOption {
       default = {};
-      type = with types; attrsOf (submodule [ { options = pathOptions; } unitConfig ]);
+      type = systemdUtils.types.paths;
       description = "Definition of systemd path units.";
     };
 
     systemd.mounts = mkOption {
       default = [];
-      type = with types; listOf (submodule [ { options = mountOptions; } unitConfig mountConfig ]);
+      type = systemdUtils.types.mounts;
       description = ''
         Definition of systemd mount units.
         This is a list instead of an attrSet, because systemd mandates the names to be derived from
@@ -243,7 +230,7 @@ in
 
     systemd.automounts = mkOption {
       default = [];
-      type = with types; listOf (submodule [ { options = automountOptions; } unitConfig automountConfig ]);
+      type = systemdUtils.types.automounts;
       description = ''
         Definition of systemd automount units.
         This is a list instead of an attrSet, because systemd mandates the names to be derived from
@@ -253,7 +240,7 @@ in
 
     systemd.slices = mkOption {
       default = {};
-      type = with types; attrsOf (submodule [ { options = sliceOptions; } unitConfig] );
+      type = systemdUtils.types.slices;
       description = "Definition of slice configurations.";
     };
 
@@ -299,6 +286,16 @@ in
       example = { TZ = "CET"; };
       description = ''
         Environment variables passed to <emphasis>all</emphasis> systemd units.
+      '';
+    };
+
+    systemd.managerEnvironment = mkOption {
+      type = with types; attrsOf (nullOr (oneOf [ str path package ]));
+      default = {};
+      example = { SYSTEMD_LOG_LEVEL = "debug"; };
+      description = ''
+        Environment variables of PID 1. These variables are
+        <emphasis>not</emphasis> passed to started units.
       '';
     };
 
@@ -352,10 +349,11 @@ in
       type = types.listOf types.str;
       example = [ "systemd-backlight@.service" ];
       description = ''
-        A list of units to suppress when generating system systemd configuration directory. This has
+        A list of units to skip when generating system systemd configuration directory. This has
         priority over upstream units, <option>systemd.units</option>, and
         <option>systemd.additionalUpstreamSystemUnits</option>. The main purpose of this is to
-        suppress a upstream systemd unit with any modifications made to it by other NixOS modules.
+        prevent a upstream systemd unit from being added to the initrd with any modifications made to it
+        by other NixOS modules.
       '';
     };
 
@@ -470,11 +468,18 @@ in
 
       enabledUpstreamSystemUnits = filter (n: ! elem n cfg.suppressedSystemUnits) upstreamSystemUnits;
       enabledUnits = filterAttrs (n: v: ! elem n cfg.suppressedSystemUnits) cfg.units;
+
     in ({
-      "systemd/system".source = generateUnits "system" enabledUnits enabledUpstreamSystemUnits upstreamSystemWants;
+      "systemd/system".source = generateUnits {
+        type = "system";
+        units = enabledUnits;
+        upstreamUnits = enabledUpstreamSystemUnits;
+        upstreamWants = upstreamSystemWants;
+      };
 
       "systemd/system.conf".text = ''
         [Manager]
+        ManagerEnvironment=${lib.concatStringsSep " " (lib.mapAttrsToList (n: v: "${n}=${lib.escapeShellArg v}") cfg.managerEnvironment)}
         ${optionalString config.systemd.enableCgroupAccounting ''
           DefaultCPUAccounting=yes
           DefaultIOAccounting=yes
@@ -542,6 +547,17 @@ in
                    (v: let n = escapeSystemdPath v.where;
                        in nameValuePair "${n}.automount" (automountToUnit n v)) cfg.automounts);
 
+      # Environment of PID 1
+      systemd.managerEnvironment = {
+        # Doesn't contain systemd itself - everything works so it seems to use the compiled-in value for its tools
+        PATH = lib.makeBinPath config.system.fsPackages;
+        LOCALE_ARCHIVE = "/run/current-system/sw/lib/locale/locale-archive";
+        TZDIR = "/etc/zoneinfo";
+        # If SYSTEMD_UNIT_PATH ends with an empty component (":"), the usual unit load path will be appended to the contents of the variable
+        SYSTEMD_UNIT_PATH = lib.mkIf (config.boot.extraSystemdUnitPaths != []) "${builtins.concatStringsSep ":" config.boot.extraSystemdUnitPaths}:";
+      };
+
+
     system.requiredKernelConfig = map config.lib.kernelConfig.isEnabled
       [ "DEVTMPFS" "CGROUPS" "INOTIFY_USER" "SIGNALFD" "TIMERFD" "EPOLL" "NET"
         "SYSFS" "PROC_FS" "FHANDLE" "CRYPTO_USER_API_HASH" "CRYPTO_HMAC"
@@ -556,14 +572,6 @@ in
           timerConfig.OnCalendar = service.startAt;
         })
         (filterAttrs (name: service: service.enable && service.startAt != []) cfg.services);
-
-    # Generate timer units for all services that have a ‘startAt’ value.
-    systemd.user.timers =
-      mapAttrs (name: service:
-        { wantedBy = [ "timers.target" ];
-          timerConfig.OnCalendar = service.startAt;
-        })
-        (filterAttrs (name: service: service.startAt != []) cfg.user.services);
 
     # Some overrides to upstream units.
     systemd.services."systemd-backlight@".restartIfChanged = false;
@@ -589,22 +597,18 @@ in
 
     boot.kernelParams = optional (!cfg.enableUnifiedCgroupHierarchy) "systemd.unified_cgroup_hierarchy=0";
 
-    services.logrotate.paths = {
+    services.logrotate.settings = {
       "/var/log/btmp" = mapAttrs (_: mkDefault) {
         frequency = "monthly";
-        keep = 1;
-        extraConfig = ''
-          create 0660 root ${config.users.groups.utmp.name}
-          minsize 1M
-        '';
+        rotate = 1;
+        create = "0660 root ${config.users.groups.utmp.name}";
+        minsize = "1M";
       };
       "/var/log/wtmp" = mapAttrs (_: mkDefault) {
         frequency = "monthly";
-        keep = 1;
-        extraConfig = ''
-          create 0664 root ${config.users.groups.utmp.name}
-          minsize 1M
-        '';
+        rotate = 1;
+        create = "0664 root ${config.users.groups.utmp.name}";
+        minsize = "1M";
       };
     };
   };

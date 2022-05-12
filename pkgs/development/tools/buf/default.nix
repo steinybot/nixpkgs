@@ -3,23 +3,23 @@
 , fetchFromGitHub
 , protobuf
 , git
-, testVersion
+, testers
 , buf
 , installShellFiles
 }:
 
 buildGoModule rec {
   pname = "buf";
-  version = "1.1.1";
+  version = "1.4.0";
 
   src = fetchFromGitHub {
     owner = "bufbuild";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-w/P9pNHxaBRlAly5jE7I0JsjjFeDctFaXOTbzDESaCo=";
+    sha256 = "sha256-cKb9pZYEsO1thgtl/8XFJHpNrO6P3OR8Lox/Gf9ccYk=";
   };
 
-  vendorSha256 = "sha256-AM/MN4vdcsHEbYdOEuVOvkMCdMDnk2UiW5vUnXcj+wY=";
+  vendorSha256 = "sha256-zXLvKEdiIFnmwWQBgbJHCEBe2i7FobgeUOnA3LvHl8w=";
 
   patches = [
     # Skip a test that requires networking to be available to work.
@@ -70,7 +70,7 @@ buildGoModule rec {
     runHook postInstall
   '';
 
-  passthru.tests.version = testVersion { package = buf; };
+  passthru.tests.version = testers.testVersion { package = buf; };
 
   meta = with lib; {
     homepage = "https://buf.build";

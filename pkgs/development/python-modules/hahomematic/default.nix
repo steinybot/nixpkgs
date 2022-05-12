@@ -14,16 +14,16 @@
 
 buildPythonPackage rec {
   pname = "hahomematic";
-  version = "0.38.4";
-  format = "setuptools";
+  version = "1.3.0";
+  format = "pyproject";
 
   disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "danielperna84";
     repo = pname;
-    rev = version;
-    sha256 = "sha256-WvcQTaYlKTOYbYwH/FbNTMoHdUhesYeeNYP8RDgQms4=";
+    rev = "refs/tags/${version}";
+    sha256 = "sha256-033iPQfFF26Ly8OVdjExDZDoQ35DXuVF7dXqokA7k/s=";
   };
 
   propagatedBuildInputs = [

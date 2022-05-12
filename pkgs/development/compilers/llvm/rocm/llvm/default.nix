@@ -28,6 +28,8 @@ in stdenv.mkDerivation rec {
 
   pname = "rocm-llvm";
 
+  sourceRoot = "${src.name}/llvm";
+
   outputs = [ "out" "python" ]
     ++ lib.optional enableSharedLibraries "lib";
 
@@ -59,7 +61,9 @@ in stdenv.mkDerivation rec {
     "-DSPHINX_WARNINGS_AS_ERRORS=OFF"
   ];
 
-  postPatch = lib.optional enableSharedLibraries ''
+  postPatch = ''
+    patchShebangs lib/OffloadArch/make_generated_offload_arch_h.sh
+  '' + lib.optionalString enableSharedLibraries ''
     substitute '${./outputs.patch}' ./outputs.patch --subst-var lib
     patch -p1 < ./outputs.patch
   '';

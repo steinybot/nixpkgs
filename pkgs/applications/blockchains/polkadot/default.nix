@@ -4,17 +4,19 @@
 , llvmPackages
 , protobuf
 , rustPlatform
+, stdenv
 , writeShellScriptBin
+, Security
 }:
 rustPlatform.buildRustPackage rec {
   pname = "polkadot";
-  version = "0.9.18";
+  version = "0.9.21";
 
   src = fetchFromGitHub {
     owner = "paritytech";
     repo = "polkadot";
     rev = "v${version}";
-    sha256 = "sha256-pjHSiVspBV15jKUFv+Uf2l3tah40l55Pv8vwDuwgwjc=";
+    sha256 = "HCj5WwfKa4QsfO+1u4ciukDg6Rzv/uvc8h+V/Duhksg=";
 
     # the build process of polkadot requires a .git folder in order to determine
     # the git commit hash that is being built and add it to the version string.
@@ -30,7 +32,9 @@ rustPlatform.buildRustPackage rec {
     '';
   };
 
-  cargoSha256 = "sha256-Gc5WbayQUlsl7Fk8NyLPh2Zg2yrLl3WJqKorNZMLi94=";
+  cargoSha256 = "tHU8KygIhJDgID/tGGssYTnY8raI5qTdLEDwOKox3No=";
+
+  buildInputs = lib.optional stdenv.isDarwin [ Security ];
 
   nativeBuildInputs = [ clang ];
 
@@ -56,6 +60,6 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://polkadot.network";
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ akru andresilva asymmetric FlorianFranzen RaghavSood ];
-    platforms = platforms.linux;
+    platforms = platforms.unix;
   };
 }
