@@ -84,8 +84,9 @@ stdenv.mkDerivation (removeAttrs ({
   inherit (fetched) version src;
 
   nativeBuildInputs = args.overrideNativeBuildInputs
-    or ([ which ] ++ optional useDune2 coq.ocamlPackages.dune_2
-        ++ optional (useDune2 || mlPlugin) coq.ocaml
+    or ([ which coq.ocamlPackages.findlib ]
+        ++ optional useDune2 coq.ocamlPackages.dune_2
+        ++ optional (useDune2 || mlPlugin) coq.ocamlPackages.ocaml
         ++ (args.nativeBuildInputs or []) ++ extraNativeBuildInputs);
   buildInputs = args.overrideBuildInputs
     or ([ coq ] ++ (args.buildInputs or []) ++ extraBuildInputs);
@@ -103,7 +104,7 @@ stdenv.mkDerivation (removeAttrs ({
 // (optionalAttrs setCOQBIN { COQBIN = "${coq}/bin/"; })
 // (optionalAttrs (!args?installPhase && !args?useMelquiondRemake) {
   installFlags =
-    [ "DESTDIR=$(out)" ] ++ coqlib-flags ++ docdir-flags ++
+    coqlib-flags ++ docdir-flags ++
     extraInstallFlags;
 })
 // (optionalAttrs useDune2 {

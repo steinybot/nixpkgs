@@ -1,18 +1,17 @@
-{ rust, rustPlatform, stdenv, lib, fetchFromGitHub, fetchpatch, autoreconfHook
-, makeWrapper, cargo, pkg-config, curl, coreutils, boost178, db62, hexdump
-, libsodium, libevent, utf8cpp, util-linux, withDaemon ? true, withMining ? true
-, withUtils ? true, withWallet ? true, withZmq ? true, zeromq
+{ autoreconfHook, boost179, cargo, coreutils, curl, cxx-rs, db62, fetchFromGitHub
+, hexdump, lib, libevent, libsodium, makeWrapper, rust, rustPlatform, pkg-config
+, stdenv, testers, utf8cpp, util-linux, zcash, zeromq
 }:
 
-rustPlatform.buildRustPackage.override { stdenv = stdenv; } rec {
+rustPlatform.buildRustPackage.override { inherit stdenv; } rec {
   pname = "zcash";
-  version = "4.7.0";
+  version = "5.1.0";
 
   src = fetchFromGitHub {
     owner = "zcash";
     repo  = "zcash";
     rev = "v${version}";
-    sha256 = "sha256-yF+/QepSiZwsdZydWjvxDIFeFyJbJyqZmCdMyQHmrzI=";
+    sha256 = "sha256-tU6DuWpe8Vlx0qIilAKWuO7WFp1ucbxtvOxoWLA0gdc=";
   };
 
   prePatch = lib.optionalString stdenv.isAarch64 ''
@@ -21,19 +20,15 @@ rustPlatform.buildRustPackage.override { stdenv = stdenv; } rec {
       --replace "linker = \"aarch64-linux-gnu-gcc\"" ""
   '';
 
-  cargoPatches = [
-    (fetchpatch {
-      url = "https://github.com/zcash/zcash/commit/61cd19a52d41d60c1987ecf269f7aa8e4d527310.diff";
-      sha256 = "sha256-/7T2yCSVlRN7qfFjrZlfBNMlbVHb/KRjtUBY2xFr0mo=";
-    })
+  patches = [
+    ./patches/fix-missing-header.patch
   ];
 
-  cargoSha256 = "sha256-+BLfO5OnCBqQTIqMXKJdoPCRgtENa+m0WOHKG9gkdMk=";
+  cargoSha256 = "sha256-ZWmkveDEENdXRirGmnUWSjtPNJvX0Jpgfxhzk44F7Q0=";
 
-  nativeBuildInputs = [ autoreconfHook cargo hexdump makeWrapper pkg-config ];
-  buildInputs = [ boost178 libevent libsodium utf8cpp ]
-    ++ lib.optional withWallet db62
-    ++ lib.optional withZmq zeromq;
+  nativeBuildInputs = [ autoreconfHook cargo cxx-rs hexdump makeWrapper pkg-config ];
+
+  buildInputs = [ boost179 db62 libevent libsodium utf8cpp zeromq ];
 
   # Use the stdenv default phases (./configure; make) instead of the
   # ones from buildRustPackage.
@@ -48,20 +43,27 @@ rustPlatform.buildRustPackage.override { stdenv = stdenv; } rec {
     configureFlagsArray+=("RUST_VENDORED_SOURCES=$NIX_BUILD_TOP/$cargoDepsCopy")
   '';
 
+  CXXFLAGS = [
+    "-I${lib.getDev utf8cpp}/include/utf8cpp"
+    "-I${lib.getDev cxx-rs}/include"
+  ];
+
   configureFlags = [
     "--disable-tests"
-    "--with-boost-libdir=${lib.getLib boost178}/lib"
-    "CXXFLAGS=-I${lib.getDev utf8cpp}/include/utf8cpp"
+    "--with-boost-libdir=${lib.getLib boost179}/lib"
     "RUST_TARGET=${rust.toRustTargetSpec stdenv.hostPlatform}"
-  ] ++ lib.optional (!withWallet) "--disable-wallet"
-    ++ lib.optional (!withDaemon) "--without-daemon"
-    ++ lib.optional (!withUtils) "--without-utils"
-    ++ lib.optional (!withMining) "--disable-mining";
+  ];
 
   enableParallelBuilding = true;
 
   # Requires hundreds of megabytes of zkSNARK parameters.
   doCheck = false;
+
+  passthru.tests.version = testers.testVersion {
+    package = zcash;
+    command = "zcashd --version";
+    version = "v${zcash.version}";
+  };
 
   postInstall = ''
     wrapProgram $out/bin/zcash-fetch-params \
@@ -73,6 +75,5 @@ rustPlatform.buildRustPackage.override { stdenv = stdenv; } rec {
     homepage = "https://z.cash/";
     maintainers = with maintainers; [ rht tkerber centromere ];
     license = licenses.mit;
-    platforms = platforms.linux ++ platforms.darwin;
   };
 }

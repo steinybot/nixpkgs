@@ -3,7 +3,7 @@
 , fetchPypi
 
 # extras: babel
-, Babel
+, babel
 , flask-babel
 
 # extras: common
@@ -12,7 +12,7 @@
 , flask_mail
 
 # extras: fsqla
-, flask_sqlalchemy
+, flask-sqlalchemy
 , sqlalchemy
 , sqlalchemy-utils
 
@@ -23,16 +23,16 @@
 
 # propagates
 , blinker
-, email_validator
+, email-validator
 , flask
 , flask_login
 , flask_principal
-, flask_wtf
+, flask-wtf
 , itsdangerous
 , passlib
 
 # tests
-, argon2_cffi
+, argon2-cffi
 , flask-mongoengine
 , mongoengine
 , mongomock
@@ -54,18 +54,18 @@ buildPythonPackage rec {
 
   propagatedBuildInputs = [
     blinker
-    email_validator
+    email-validator
     flask
     flask_login
     flask_principal
-    flask_wtf
+    flask-wtf
     itsdangerous
     passlib
   ];
 
-  passthru.extras-require = {
+  passthru.optional-dependencies = {
     babel = [
-      Babel
+      babel
       flask-babel
     ];
     common = [
@@ -74,7 +74,7 @@ buildPythonPackage rec {
       flask_mail
     ];
     fsqla = [
-      flask_sqlalchemy
+      flask-sqlalchemy
       sqlalchemy
       sqlalchemy-utils
     ];
@@ -86,7 +86,7 @@ buildPythonPackage rec {
   };
 
   checkInputs = [
-    argon2_cffi
+    argon2-cffi
     flask-mongoengine
     mongoengine
     mongomock
@@ -95,10 +95,10 @@ buildPythonPackage rec {
     pytestCheckHook
     zxcvbn
   ]
-  ++ passthru.extras-require.babel
-  ++ passthru.extras-require.common
-  ++ passthru.extras-require.fsqla
-  ++ passthru.extras-require.mfa;
+  ++ passthru.optional-dependencies.babel
+  ++ passthru.optional-dependencies.common
+  ++ passthru.optional-dependencies.fsqla
+  ++ passthru.optional-dependencies.mfa;
 
 
   pythonImportsCheck = [ "flask_security" ];

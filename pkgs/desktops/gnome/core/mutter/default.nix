@@ -33,7 +33,6 @@
 , mesa
 , meson
 , gnome-settings-daemon
-, libxcvt
 , xorgserver
 , python3
 , wrapGAppsHook
@@ -47,13 +46,13 @@
 
 let self = stdenv.mkDerivation rec {
   pname = "mutter";
-  version = "42.1";
+  version = "42.3";
 
   outputs = [ "out" "dev" "man" ];
 
   src = fetchurl {
     url = "mirror://gnome/sources/mutter/${lib.versions.major version}/${pname}-${version}.tar.xz";
-    sha256 = "cZQhi/7EW5o+/avOb4RQ7Uw5dyIaHqQBTC5Fii/poVQ=";
+    sha256 = "naOmP5AoK7WUZ+fT39xoTnD6BVNX9qLd7R25jNzOELo=";
   };
 
   patches = [
@@ -96,8 +95,7 @@ let self = stdenv.mkDerivation rec {
     pkg-config
     python3
     wrapGAppsHook
-    libxcvt
-    xorgserver
+    xorgserver # for cvt command
   ];
 
   buildInputs = [

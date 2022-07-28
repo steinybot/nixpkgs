@@ -82,6 +82,12 @@ stdenv.mkDerivation {
     # override this behavior, forcing ld to search DT_RPATH even when
     # cross-compiling.
     ./always-search-rpath.patch
+
+    # Fixed in 2.39
+    # https://sourceware.org/bugzilla/show_bug.cgi?id=28885
+    # https://sourceware.org/git/?p=binutils-gdb.git;a=patch;h=99852365513266afdd793289813e8e565186c9e6
+    # https://github.com/NixOS/nixpkgs/issues/170946
+    ./deterministic-temp-prefixes.patch
   ]
   ++ lib.optional targetPlatform.isiOS ./support-ios.patch
   # This patch was suggested by Nick Clifton to fix
@@ -99,10 +105,22 @@ stdenv.mkDerivation {
      (if stdenv.targetPlatform.isMusl
       then substitute { src = ./mips64-default-n64.patch; replacements = [ "--replace" "gnuabi64" "muslabi64" ]; }
       else ./mips64-default-n64.patch)
+  # On PowerPC, when generating assembly code, GCC generates a `.machine`
+  # custom instruction which instructs the assembler to generate code for this
+  # machine. However, some GCC versions generate the wrong one, or make it
+  # too strict, which leads to some confusing "unrecognized opcode: wrtee"
+  # or "unrecognized opcode: eieio" errors.
+  #
+  # To remove when binutils 2.39 is released.
+  #
+  # Upstream commit:
+  # https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=cebc89b9328eab994f6b0314c263f94e7949a553
+  ++ lib.optional stdenv.targetPlatform.isPower ./ppc-make-machine-less-strict.patch
   ;
 
   outputs = [ "out" "info" "man" ];
 
+  strictDeps = true;
   depsBuildBuild = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [
     bison
@@ -186,6 +204,9 @@ stdenv.mkDerivation {
   # Remove on next bump. It's a vestige of past conditional. Stays here to avoid
   # mass rebuild.
   postFixup = "";
+
+  # Break dependency on pkgsBuildBuild.gcc when building a cross-binutils
+  stripDebugList = if stdenv.hostPlatform != stdenv.targetPlatform then "bin lib ${stdenv.hostPlatform.config}" else null;
 
   # INFO: Otherwise it fails with:
   # `./sanity.sh: line 36: $out/bin/size: not found`

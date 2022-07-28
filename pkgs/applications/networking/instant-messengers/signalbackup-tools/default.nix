@@ -2,17 +2,14 @@
 
 stdenv.mkDerivation rec {
   pname = "signalbackup-tools";
-  version = "20220430";
+  version = "20220711";
 
   src = fetchFromGitHub {
     owner = "bepaald";
     repo = pname;
     rev = version;
-    sha256 = "sha256-clG0B7PgtlpsSnZgglkv7y7SOtMTBvwJMnvMrcTWXdI=";
+    sha256 = "sha256-dKU8oTQ6ECwycDN3k7NY/pKpNWH16ceJIFDnRNEA90c=";
   };
-
-  # Remove when Apple SDK is >= 10.13
-  patches = lib.optional (stdenv.system == "x86_64-darwin") ./apple-sdk-missing-utimensat.patch;
 
   buildInputs = [ openssl sqlite ];
   buildFlags = [

@@ -112,7 +112,11 @@ self: super: {
   hls-haddock-comments-plugin = dontCheck super.hls-haddock-comments-plugin;
   hls-rename-plugin = dontCheck super.hls-rename-plugin;
   hls-fourmolu-plugin = dontCheck super.hls-fourmolu-plugin;
+  hls-floskell-plugin = dontCheck super.hls-floskell-plugin;
 } // lib.optionalAttrs pkgs.stdenv.hostPlatform.isAarch32 {
   # AARCH32-SPECIFIC OVERRIDES
 
+  # KAT/ECB/D2 test segfaults on armv7l
+  # https://github.com/haskell-crypto/cryptonite/issues/367
+  cryptonite = dontCheck super.cryptonite;
 }

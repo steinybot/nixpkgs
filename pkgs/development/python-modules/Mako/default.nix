@@ -8,7 +8,7 @@
 , markupsafe
 
 # extras: Babel
-, Babel
+, babel
 
 # tests
 , mock
@@ -17,29 +17,29 @@
 
 buildPythonPackage rec {
   pname = "Mako";
-  version = "1.2.0";
+  version = "1.2.1";
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "sha256-mnx+kiuH2zaGIQz0nV12cDOkHUAQsoTnR2gskr3dizk=";
+    sha256 = "sha256-8FSl/0dDSS8aqezEcXLLM7QrnZk8/8wUbJ3hfnF7Awc=";
   };
 
   propagatedBuildInputs = [
     markupsafe
   ];
 
-  passthru.extras-require = {
+  passthru.optional-dependencies = {
     babel = [
-      Babel
+      babel
     ];
   };
 
   checkInputs = [
     pytestCheckHook
     mock
-  ] ++ passthru.extras-require.babel;
+  ] ++ passthru.optional-dependencies.babel;
 
   disabledTests = lib.optionals isPyPy [
     # https://github.com/sqlalchemy/mako/issues/315

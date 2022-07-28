@@ -155,7 +155,7 @@ in buildFHSUserEnv rec {
     xorg.libSM
     xorg.libICE
     gnome2.GConf
-    (curl.override { gnutlsSupport = true; opensslSupport = false; })
+    curlWithGnuTls
     nspr
     nss
     cups
@@ -195,6 +195,8 @@ in buildFHSUserEnv rec {
     SDL2_ttf
     SDL2_mixer
     libappindicator-gtk2
+    libdbusmenu-gtk2
+    libindicator-gtk2
     libcaca
     libcanberra
     libgcrypt

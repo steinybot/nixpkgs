@@ -8,7 +8,6 @@
 , monotonic
 , six
 , nose
-, pyopenssl
 , iana-etc
 , pytestCheckHook
 , libredirect
@@ -16,22 +15,21 @@
 
 buildPythonPackage rec {
   pname = "eventlet";
-  version = "0.33.0";
+  version = "0.33.1";
   format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "eventlet";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-kE/eYBbaTt1mPGoUIMhonvFBlQOdAfPU5GvCvPaRHvs=";
+    hash = "sha256-8tIvvTTCcIG56VaPZMhdzAKnFRsYV3YC9xcf47nh838=";
   };
 
   propagatedBuildInputs = [
     dnspython
     greenlet
-    pyopenssl
     six
-  ] ++ lib.optional (pythonOlder "3.5") [
+  ] ++ lib.optionals (pythonOlder "3.5") [
     monotonic
   ];
 

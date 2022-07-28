@@ -11,12 +11,13 @@ dotnetInstallHook() {
             dotnet publish "$project" \
                 -p:ContinuousIntegrationBuild=true \
                 -p:Deterministic=true \
+                -p:UseAppHost=true \
                 --output "$out/lib/${pname}" \
                 --configuration "@buildType@" \
                 --no-build \
                 --no-self-contained \
-                "${dotnetInstallFlags[@]}"  \
-                "${dotnetFlags[@]}"
+                ${dotnetInstallFlags[@]}  \
+                ${dotnetFlags[@]}
     done
 
     if [[ "${packNupkg-}" ]]; then
@@ -28,8 +29,8 @@ dotnetInstallHook() {
                     --output "$out/share" \
                     --configuration "@buildType@" \
                     --no-build \
-                    "${dotnetPackFlags[@]}"  \
-                    "${dotnetFlags[@]}"
+                    ${dotnetPackFlags[@]}  \
+                    ${dotnetFlags[@]}
         done
     fi
 

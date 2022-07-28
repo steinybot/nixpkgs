@@ -3,39 +3,46 @@
 , buildGoModule
 , fetchFromGitHub
 , installShellFiles
-, pkg-config
-, gpgme
-, glibc
-, lvm2
 , btrfs-progs
+, glibc
+, testers
+, werf
 }:
 
 buildGoModule rec {
   pname = "werf";
-  version = "1.2.99";
+  version = "1.2.140";
 
   src = fetchFromGitHub {
     owner = "werf";
     repo = "werf";
     rev = "v${version}";
-    sha256 = "sha256-D9NwVZGB0UV0tRe927GpxHzdvAeqcRJOYfocbbj6BRM=";
+    sha256 = "sha256-StlIq7Xt71R2Yy2qeEC1faRQdlQSg6aQKwO8pVFMYGw=";
   };
-  vendorSha256 = "sha256-ZMSTl9WFTF5x+tiQZ37ihVrOuLS0W5PjyXbbzyHJNsI=";
+
+  vendorSha256 = "sha256-jeRLA6dRvdKGWexR6/P6Vx39UmSK4Hhb/nyR3irMuWA=";
+
   proxyVendor = true;
 
-  nativeBuildInputs = [ installShellFiles pkg-config ];
-  buildInputs = [ gpgme ]
-    ++ lib.optionals stdenv.isLinux [ glibc.static lvm2 btrfs-progs ];
+  subPackages = [ "cmd/werf" ];
 
-  # Flags are derived from
-  # https://github.com/werf/werf/blob/main/scripts/build_release_v3.sh
-  ldflags = [ "-s" "-w" "-X github.com/werf/werf/pkg/werf.Version=v${version}" ]
-    ++ lib.optionals stdenv.isLinux [
-    "-linkmode external"
+  nativeBuildInputs = [ installShellFiles ];
+  buildInputs = lib.optionals stdenv.isLinux [ btrfs-progs glibc.static ];
+
+  ldflags = [
+    "-s"
+    "-w"
+    "-X github.com/werf/werf/pkg/werf.Version=${src.rev}"
+  ] ++ lib.optionals stdenv.isLinux [
     "-extldflags=-static"
+    "-linkmode external"
   ];
-  tags = [ "dfrunmount" "dfssh" "containers_image_openpgp" ]
-    ++ lib.optionals stdenv.isLinux [
+
+  tags = [
+    "containers_image_openpgp"
+    "dfrunmount"
+    "dfssh"
+  ] ++ lib.optionals stdenv.isLinux [
     "exclude_graphdriver_devicemapper"
     "netgo"
     "no_devmapper"
@@ -43,7 +50,8 @@ buildGoModule rec {
     "static_build"
   ];
 
-  subPackages = [ "cmd/werf" ];
+  # There are no tests for cmd/werf.
+  doCheck = false;
 
   postInstall = ''
     installShellCompletion --cmd werf \
@@ -51,9 +59,20 @@ buildGoModule rec {
       --zsh <($out/bin/werf completion --shell=zsh)
   '';
 
+  passthru.tests.version = testers.testVersion {
+    package = werf;
+    command = "werf version";
+    version = "v${version}";
+  };
+
   meta = with lib; {
-    homepage = "https://github.com/werf/werf";
     description = "GitOps delivery tool";
+    longDescription = ''
+      The CLI tool gluing Git, Docker, Helm & Kubernetes with any CI system to
+      implement CI/CD and Giterminism.
+    '';
+    homepage = "https://werf.io";
+    changelog = "https://github.com/werf/werf/releases/tag/${src.rev}";
     license = licenses.asl20;
     maintainers = with maintainers; [ azahi ];
   };

@@ -1,10 +1,11 @@
-{ stdenv, lib, callPackage, buildMozillaMach }:
+{ stdenv, lib, callPackage, buildMozillaMach, nixosTests }:
 
 let
   librewolf-src = callPackage ./librewolf.nix { };
 in
 (buildMozillaMach rec {
   pname = "librewolf";
+  applicationName = "LibreWolf";
   binaryName = "librewolf";
   version = librewolf-src.packageVersion;
   src = librewolf-src.firefox;
@@ -21,6 +22,7 @@ in
     maxSilent = 14400; # 4h, double the default of 7200s (c.f. #129212, #129115)
     license = lib.licenses.mpl20;
   };
+  tests = [ nixosTests.librewolf ];
   updateScript = callPackage ./update.nix {
     attrPath = "librewolf-unwrapped";
   };

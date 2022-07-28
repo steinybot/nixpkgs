@@ -1,17 +1,17 @@
-{ buildGoModule, fetchFromGitHub, lib, testers, flyctl }:
+{ lib, buildGoModule, fetchFromGitHub, testers, flyctl, installShellFiles }:
 
 buildGoModule rec {
   pname = "flyctl";
-  version = "0.0.323";
+  version = "0.0.351";
 
   src = fetchFromGitHub {
     owner = "superfly";
     repo = "flyctl";
     rev = "v${version}";
-    sha256 = "sha256-7mPZ4p7fb49Lc+sx7/jEw+oFdFaYtEJcSzFS5haC6NM=";
+    sha256 = "sha256-vxX11kaQMOQ2LJ/2q4QrlzMmuJtkn1Oe1iBHQgXn0mI=";
   };
 
-  vendorSha256 = "sha256-dTeFeDdT44k1HxIEuvTU/A8xAa1VhVv4ZFbvg1PagPw=";
+  vendorSha256 = "sha256-gAdKrPU6js3zrzX2+NWQZSXxGuuUiggprua4gvd++OQ=";
 
   subPackages = [ "." ];
 
@@ -22,6 +22,8 @@ buildGoModule rec {
     "-X github.com/superfly/flyctl/internal/buildinfo.environment=production"
     "-X github.com/superfly/flyctl/internal/buildinfo.version=${version}"
   ];
+
+  nativeBuildInputs = [ installShellFiles ];
 
   preBuild = ''
     go generate ./...
@@ -35,6 +37,13 @@ buildGoModule rec {
     go test ./... -ldflags="-X 'github.com/superfly/flyctl/internal/buildinfo.buildDate=1970-01-01T00:00:00Z'"
   '';
 
+  postInstall = ''
+    installShellCompletion --cmd flyctl \
+      --bash <($out/bin/flyctl completion bash) \
+      --fish <($out/bin/flyctl completion fish) \
+      --zsh <($out/bin/flyctl completion zsh)
+  '';
+
   passthru.tests.version = testers.testVersion {
     package = flyctl;
     command = "HOME=$(mktemp -d) flyctl version";
@@ -46,6 +55,6 @@ buildGoModule rec {
     downloadPage = "https://github.com/superfly/flyctl";
     homepage = "https://fly.io/";
     license = licenses.asl20;
-    maintainers = with maintainers; [ aaronjanse jsierles techknowlogick ];
+    maintainers = with maintainers; [ aaronjanse jsierles techknowlogick viraptor ];
   };
 }

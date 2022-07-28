@@ -12,15 +12,15 @@
 
 buildPythonPackage rec {
   pname = "gcal-sync";
-  version = "0.7.1";
+  version = "0.10.0";
 
   disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "allenporter";
     repo = "gcal_sync";
-    rev = version;
-    hash = "sha256-NOB74P+5i63FEeHJsPXRdRgY6iyIUEn7BogbVKm8P5M=";
+    rev = "refs/tags/${version}";
+    hash = "sha256-RwQOLeOGxT8FijDSrByhZC/T8pFRDfJbA1eAQ1l4qUU=";
   };
 
   propagatedBuildInputs = [

@@ -78,10 +78,13 @@ stdenv.mkDerivation rec {
   };
   sourceRoot = "apache-arrow-${version}/cpp";
 
-  ${if enableJemalloc then "ARROW_JEMALLOC_URL" else null} = jemalloc.src;
-
   # versions are all taken from
   # https://github.com/apache/arrow/blob/apache-arrow-8.0.0/cpp/thirdparty/versions.txt
+
+  ${if enableJemalloc then "ARROW_JEMALLOC_URL" else null} = fetchurl {
+    url = "https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemalloc-5.2.1.tar.bz2";
+    hash = "sha256-NDMOXOJ2CZ4uiVDZM121qHVomkxqVnUe87HYxTf4h/Y=";
+  };
 
   ARROW_MIMALLOC_URL = fetchFromGitHub {
     owner = "microsoft";
@@ -201,7 +204,6 @@ stdenv.mkDerivation rec {
   ] ++ lib.optionals (!enableShared) [
     "-DARROW_TEST_LINKAGE=static"
   ] ++ lib.optionals stdenv.isDarwin [
-    "-DCMAKE_SKIP_BUILD_RPATH=OFF" # needed for tests
     "-DCMAKE_INSTALL_RPATH=@loader_path/../lib" # needed for tools executables
   ] ++ lib.optional (!stdenv.isx86_64) "-DARROW_USE_SIMD=OFF"
   ++ lib.optional enableS3 "-DAWSSDK_CORE_HEADER_FILE=${aws-sdk-cpp}/include/aws/core/Aws.h";
@@ -248,7 +250,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "A cross-language development platform for in-memory data";
-    homepage = "https://arrow.apache.org/";
+    homepage = "https://arrow.apache.org/docs/cpp/";
     license = licenses.asl20;
     platforms = platforms.unix;
     maintainers = with maintainers; [ tobim veprbl cpcloud ];

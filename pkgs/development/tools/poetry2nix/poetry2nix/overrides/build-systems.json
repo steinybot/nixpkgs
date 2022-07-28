@@ -50,6 +50,9 @@
   "aiokafka": [
     "cython"
   ],
+  "aiolimiter": [
+    "poetry-core"
+  ],
   "aiomultiprocess": [
     "flit-core"
   ],
@@ -171,6 +174,9 @@
   "boltztrap2": [
     "cython"
   ],
+  "bracex": [
+    "hatchling"
+  ],
   "bsblan": [
     "poetry-core"
   ],
@@ -229,6 +235,9 @@
     "flit-core",
     "flitBuildHook"
   ],
+  "copier": [
+    "poetry-core"
+  ],
   "cpyparsing": [
     "cython"
   ],
@@ -237,6 +246,9 @@
   ],
   "credis": [
     "cython",
+    "poetry-core"
+  ],
+  "cruft": [
     "poetry-core"
   ],
   "cssselect2": [
@@ -350,6 +362,9 @@
   "enumatch": [
     "poetry"
   ],
+  "envs": [
+    "poetry-core"
+  ],
   "exceptiongroup": [
     "flit-core",
     "flitBuildHook"
@@ -364,6 +379,9 @@
     "poetry"
   ],
   "fastavro": [
+    "cython"
+  ],
+  "fastbencode": [
     "cython"
   ],
   "fastdtw": [
@@ -429,6 +447,9 @@
   "gensim": [
     "cython"
   ],
+  "gidgethub": [
+    "flitBuildHook"
+  ],
   "glances-api": [
     "poetry-core"
   ],
@@ -479,6 +500,9 @@
   ],
   "hashids": [
     "flit-core"
+  ],
+  "hatch-vcs": [
+    "hatchling"
   ],
   "hdate": [
     "poetry-core"
@@ -543,6 +567,9 @@
   "ipwhl": [
     "flitBuildHook"
   ],
+  "ipykernel": [
+    "hatchling"
+  ],
   "iso8601": [
     "poetry-core"
   ],
@@ -569,6 +596,13 @@
   ],
   "json-schema-for-humans": [
     "poetry-core"
+  ],
+  "jsonschema": [
+    { "buildSystem": "hatchling", "from": "4.6.0" },
+    { "buildSystem": "hatch-vcs", "from": "4.6.0" }
+  ],
+  "jupyter-client": [
+    "hatchling"
   ],
   "jupyter-server": [
     "jupyter-packaging"
@@ -620,6 +654,9 @@
   ],
   "linecache2": [
     "pbr"
+  ],
+  "linz-logger": [
+    "poetry-core"
   ],
   "llfuse": [
     "cython"
@@ -711,6 +748,9 @@
   "monosat": [
     "cython"
   ],
+  "more-itertools": [
+    "flit-core"
+  ],
   "motioneye-client": [
     "poetry-core"
   ],
@@ -719,6 +759,9 @@
   ],
   "msgpack-numpy": [
     "cython"
+  ],
+  "msgpack-types": [
+    "poetry"
   ],
   "msoffcrypto-tool": [
     "poetry-core"
@@ -734,6 +777,9 @@
   ],
   "mypy-boto3-builder": [
     "poetry-core"
+  ],
+  "myst-parser": [
+    "flit-core"
   ],
   "nats-python": [
     "poetry-core"
@@ -771,6 +817,9 @@
   "notebook-shim": [
     "jupyter-packaging"
   ],
+  "notify-py": [
+    "poetry-core"
+  ],
   "notus-scanner": [
     "poetry-core"
   ],
@@ -806,6 +855,9 @@
   ],
   "openstacksdk": [
     "pbr"
+  ],
+  "openstep-plist": [
+    "cython"
   ],
   "openvino": [
     "cython"
@@ -889,6 +941,12 @@
   "pixelmatch": [
     "poetry-core"
   ],
+  "pkgconfig": [
+    "poetry-core"
+  ],
+  "plux": [
+    "pytest-runner"
+  ],
   "poetry": [
     "poetry-core"
   ],
@@ -925,6 +983,12 @@
   "prometheus-fastapi-instrumentator": [
     "poetry"
   ],
+  "prospector": [
+    "poetry-core"
+  ],
+  "protoletariat": [
+    "poetry-core"
+  ],
   "ptyprocess": [
     "flit-core"
   ],
@@ -936,6 +1000,9 @@
   ],
   "pvo": [
     "poetry-core"
+  ],
+  "py-multihash": [
+    "pytest-runner"
   ],
   "py-synologydsm-api": [
     "poetry-core"
@@ -1234,6 +1301,9 @@
   "python-swiftclient": [
     "pbr"
   ],
+  "python-trovo": [
+    "poetry"
+  ],
   "python_openzwave": [
     "cython"
   ],
@@ -1275,6 +1345,9 @@
   ],
   "qiskit-terra": [
     "cython"
+  ],
+  "qstylizer": [
+    "pbr"
   ],
   "questionary": [
     "poetry-core"
@@ -1330,6 +1403,9 @@
   "rich": [
     "poetry-core"
   ],
+  "rio-tiler": [
+    "flit-core"
+  ],
   "ripser": [
     "cython"
   ],
@@ -1361,11 +1437,17 @@
   "rtmixer": [
     "cython"
   ],
+  "sane-python": [
+    "poetry-core"
+  ],
   "sanic": [
     "poetry-core"
   ],
   "sarif-om": [
     "pbr"
+  ],
+  "sat-search": [
+    "pytest-runner"
   ],
   "scikit-bio": [
     "cython"
@@ -1429,6 +1511,9 @@
   ],
   "single-version": [
     "poetry-core"
+  ],
+  "skia-pathops": [
+    "cython"
   ],
   "slowapi": [
     "poetry-core"
@@ -1547,6 +1632,9 @@
   "terminaltables": [
     "poetry"
   ],
+  "terminado": [
+    "hatchling"
+  ],
   "tern": [
     "pbr"
   ],
@@ -1602,6 +1690,9 @@
   "toggl-cli": [
     "pbr"
   ],
+  "toml-cli": [
+    "poetry"
+  ],
   "toml-sort": [
     "poetry"
   ],
@@ -1619,6 +1710,10 @@
   ],
   "traceback2": [
     "pbr"
+  ],
+  "traitlets": [
+    { "buildSystem": "flit-core", "until": "5.2.1" },
+    { "buildSystem": "hatchling", "from": "5.2.1" }
   ],
   "transmission-rpc": [
     "poetry-core"
@@ -1667,6 +1762,9 @@
   ],
   "wakeonlan": [
     "poetry-core"
+  ],
+  "wcmatch": [
+    "hatchling"
   ],
   "weasyprint": [
     "flit-core"
